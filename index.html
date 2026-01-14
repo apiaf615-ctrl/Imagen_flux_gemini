@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SteveAI | Elite Orchestrator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #D4AF37; --bg: #030303; }
+        body { background-color: var(--bg); color: #fafafa; font-family: 'Inter', sans-serif; }
+        .steve-font { font-family: 'Orbitron', sans-serif; letter-spacing: 2px; }
+        .glass { background: rgba(15, 15, 15, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.05); }
+        .gold-border { border: 1px solid rgba(212, 175, 55, 0.3); }
+        .gold-text { color: var(--gold); text-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
+        
+        @keyframes pulse-gold { 0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(212, 175, 55, 0); } 100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); } }
+        .orchestrating { animation: pulse-gold 2s infinite; border-color: var(--gold) !important; }
+        
+        .progress-bar { height: 2px; background: #111; width: 100%; overflow: hidden; position: relative; }
+        .progress-inner { position: absolute; height: 100%; background: var(--gold); width: 0%; transition: width 0.5s ease; }
+        
+        select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='gold'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; padding-right: 2.5rem; -webkit-appearance: none; }
+    </style>
+</head>
+<body class="p-4 lg:p-10">
+
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
+        <div class="flex items-center gap-5">
+            <div class="w-12 h-12 bg-zinc-900 border border-zinc-700 flex items-center justify-center rounded-xl shadow-2xl">
+                <div class="w-6 h-6 bg-yellow-500 rounded-full animate-pulse"></div>
+            </div>
+            <div>
+                <h1 class="steve-font text-2xl font-bold gold-text">STEVEAI <span class="text-white">ORCHESTRATOR</span></h1>
+                <p class="text-[10px] text-zinc-500 uppercase tracking-widest font-semibold">Saadpie Multi-Modal Cluster v7.5</p>
+            </div>
+        </div>
+        <div class="flex gap-4">
+            <div class="glass px-4 py-2 rounded-lg border-zinc-800 flex items-center gap-3">
+                <div class="w-2 h-2 rounded-full bg-green-500 animate-ping"></div>
+                <span class="text-[10px] font-mono text-zinc-400">FLUX_READY</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <div class="lg:col-span-4 space-y-6">
+            <div class="glass p-8 rounded-3xl gold-border relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full progress-bar"><div id="mainProgress" class="progress-inner"></div></div>
+                
+                <h3 class="steve-font text-xs mb-4 gold-text uppercase">Engine Selection</h3>
+                <select id="modelSelect" class="w-full bg-black/50 border border-zinc-800 rounded-xl p-3 text-[10px] steve-font gold-text outline-none mb-6 cursor-pointer">
+                    <option value="provider-4/flux-schnell">Flux Schnell (Architectural)</option>
+                    <option value="provider-4/imagen-4">Imagen 4 (Master Render)</option>
+                </select>
+
+                <h3 class="steve-font text-xs mb-4 gold-text uppercase">Command Input</h3>
+                <textarea id="promptInput" class="w-full bg-black/50 border border-zinc-800 rounded-2xl p-4 text-sm h-40 focus:border-yellow-600/50 outline-none transition-all resize-none mb-6 placeholder:text-zinc-700" placeholder="Describe the classic luxury vision..."></textarea>
+                
+                <button id="orchestrateBtn" onclick="runPremiumPipeline()" class="w-full py-4 rounded-2xl bg-white text-black font-bold text-xs steve-font hover:scale-[1.02] active:scale-[0.98] transition-all">
+                    START ORCHESTRATION
+                </button>
+            </div>
+
+            <div id="statusCard" class="glass p-6 rounded-3xl border-zinc-800 opacity-50 transition-all">
+                <p id="statusHeading" class="text-[10px] steve-font text-zinc-500 mb-2 uppercase">System Standby</p>
+                <p id="statusDetail" class="text-xs text-zinc-300 italic">Waiting for instruction...</p>
+            </div>
+
+             <div class="glass p-6 rounded-3xl border-zinc-800">
+                <h3 class="steve-font text-[10px] text-zinc-500 mb-4 uppercase">Logic Vault (Architected)</h3>
+                <div id="vaultList" class="space-y-3 max-h-40 overflow-y-auto pr-2 text-[10px] font-mono">
+                    <p class="text-zinc-600 italic">No prompts archived...</p>
+                </div>
+             </div>
+        </div>
+
+        <div class="lg:col-span-8">
+            <div id="outputContainer" class="glass h-[650px] rounded-3xl border-zinc-800 flex flex-col p-2 relative overflow-hidden">
+                <div class="flex-grow rounded-2xl bg-zinc-950 flex items-center justify-center overflow-hidden relative">
+                    <img id="mainVisual" src="" class="w-full h-full object-cover opacity-0 transition-opacity duration-1000">
+                    
+                    <div id="premiumLoader" class="hidden absolute flex flex-col items-center">
+                        <div class="w-20 h-20 border-2 border-yellow-500/20 border-t-yellow-500 rounded-full animate-spin mb-6"></div>
+                        <p id="loadingText" class="steve-font text-[10px] gold-text animate-pulse uppercase tracking-[0.3em]">Researching...</p>
+                    </div>
+
+                    <div id="idleState" class="text-zinc-800 text-center">
+                        <svg class="w-16 h-16 mx-auto mb-4 opacity-20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 3.45l8.1 14.1H3.9L12 5.45z"/></svg>
+                        <p class="steve-font text-xs opacity-20">Awaiting Signal</p>
+                    </div>
+                </div>
+
+                <div class="h-20 flex justify-between items-center px-6">
+                    <div class="flex items-center gap-4">
+                        <div id="logoPreview" class="w-12 h-12 rounded-full bg-zinc-900 border border-zinc-800 overflow-hidden flex items-center justify-center shadow-lg">
+                            <span class="text-zinc-700 text-xs">S</span>
+                        </div>
+                        <div>
+                            <p class="text-[10px] text-zinc-500 font-bold uppercase">Asset Status</p>
+                            <p id="assetPhase" class="text-[10px] text-zinc-600">Standby</p>
+                        </div>
+                    </div>
+                    <button onclick="downloadAsset()" class="px-8 py-2 border border-zinc-800 rounded-full text-[10px] steve-font hover:bg-zinc-800 transition gold-text">EXPORT ASSET</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CONFIG = {
+            G_KEY: "AIzaSyCAm9bnra0Y1geXJpFF-QbLYEES5iThXYs",
+            A_KEY: "ddc-a4f-19edcac8ace04970a59aea3baefa947e"
+        };
+
+        async function runPremiumPipeline() {
+            const rawPrompt = document.getElementById('promptInput').value;
+            const model = document.getElementById('modelSelect').value;
+            const btn = document.getElementById('orchestrateBtn');
+            const prog = document.getElementById('mainProgress');
+            const head = document.getElementById('statusHeading');
+            const detail = document.getElementById('statusDetail');
+            const loader = document.getElementById('premiumLoader');
+            const loadText = document.getElementById('loadingText');
+            const idle = document.getElementById('idleState');
+            const mainImg = document.getElementById('mainVisual');
+            const card = document.getElementById('statusCard');
+
+            if(!rawPrompt) return alert("Vision undefined.");
+
+            btn.disabled = true;
+            btn.innerText = "ORCHESTRATING...";
+            card.classList.add('orchestrating', 'opacity-100');
+            prog.style.width = "15%";
+            head.innerText = "RESEARCHING";
+            detail.innerText = "Gemini is grounding via Google Search...";
+            loadText.innerText = "Researching...";
+            loader.classList.remove('hidden');
+            idle.classList.add('hidden');
+            mainImg.style.opacity = "0";
+
+            try {
+                // PHASE 1: SEARCH & ARCHITECT
+                const geminiRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${CONFIG.G_KEY}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `Search Google for official guidelines and luxury trends for: "${rawPrompt}". Use findings to write a master image prompt for ${model}. Focus on classic luxury, print-ready, high-resolution. Output ONLY the technical prompt string.` }] }],
+                        tools: [{ google_search: {} }]
+                    })
+                });
+                const gData = await geminiRes.json();
+                const architected = gData.candidates[0].content.parts[0].text;
+
+                // PHASE 2: MULTI-MODEL RENDER
+                prog.style.width = "50%";
+                head.innerText = "RENDERING";
+                detail.innerText = `Routing to ${model.split('/')[1]} cluster...`;
+                loadText.innerText = "Rendering...";
+                
+                const imgRes = await fetch("https://api.a4f.co/v1/images/generations", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${CONFIG.A_KEY}` },
+                    body: JSON.stringify({
+                        model: model,
+                        prompt: architected,
+                        n: 1, size: "1024x1024", response_format: "url"
+                    })
+                });
+                const iData = await imgRes.json();
+                const url = iData.data[0].url;
+
+                // PHASE 3: FINISH
+                prog.style.width = "100%";
+                mainImg.src = url;
+                mainImg.style.opacity = "1";
+                document.getElementById('logoPreview').innerHTML = `<img src="${url}" class="w-full h-full object-cover">`;
+                document.getElementById('assetPhase').innerText = "Asset Delivered";
+                addToVault(rawPrompt, architected);
+
+                head.innerText = "SUCCESS";
+                detail.innerText = "Asset archived and delivered.";
+
+            } catch (err) {
+                head.innerText = "FAULT";
+                detail.innerText = "Connection error.";
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "START ORCHESTRATION";
+                loader.classList.add('hidden');
+                setTimeout(() => { 
+                    prog.style.width = "0%";
+                    card.classList.remove('orchestrating');
+                }, 2000);
+            }
+        }
+
+        function addToVault(userText, techText) {
+            const vault = document.getElementById('vaultList');
+            if(vault.innerText.includes("No prompts")) vault.innerHTML = "";
+            const entry = document.createElement('div');
+            entry.className = "p-3 bg-white/5 rounded-xl border border-white/5 mb-2";
+            entry.innerHTML = `<p class="gold-text uppercase mb-1">${userText}</p><p class="text-zinc-500 leading-tight">${techText.substring(0, 100)}...</p>`;
+            vault.prepend(entry);
+        }
+
+        function downloadAsset() {
+            const src = document.getElementById('mainVisual').src;
+            if(src) window.open(src, '_blank');
+        }
+    </script>
+</body>
+</html>
